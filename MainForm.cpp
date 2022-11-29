@@ -71,13 +71,13 @@ System::Void XFontForm::MeshEdit::button3_Click(System::Object ^ sender, System:
 
 	FrontSystem.ManageCreationFile();
 
-	// @ Если успешно загружен файл
+	// @ Р•СЃР»Рё СѓСЃРїРµС€РЅРѕ Р·Р°РіСЂСѓР¶РµРЅ С„Р°Р№Р»
 	if (XRay::CFontGen::bSucFile)
 	{
 		FrontSystem.CreateFolder();
 		FrontSystem.CheckTexConv();
 
-		// @ Если успешно создана папка
+		// @ Р•СЃР»Рё СѓСЃРїРµС€РЅРѕ СЃРѕР·РґР°РЅР° РїР°РїРєР°
 		if (XRay::CFontGen::bSucDir)
 			FrontSystem.InitFont();
 	}

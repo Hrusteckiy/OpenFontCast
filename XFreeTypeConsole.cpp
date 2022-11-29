@@ -36,9 +36,9 @@ void XRay::CFontGen::ReleaseFreeType()
 }
 
 int g_count = 0;
-int max_height_font = 0; // @ äëÿ âûâîäà ôàéëîâ, ïî ñóòè îáìàíêà,
-// èáî â äåéñòâèòåëüíîñòè ìû óìåíüøàåì ðàçìåð øðèôòà è âûâîäèòñÿ
-//äîëæíî ïîä êàæäûé ðàçìåð, íî ìû äåëàåì êàê ÏÛÑ, òî åñòü _size_800, _size_1600, _size, ãäå size îäíî è òî æå ÷èñëî
+int max_height_font = 0; // @ для вывода файлов, по сути обманка,
+// ибо в действительности мы уменьшаем размер шрифта и выводится
+//должно под каждый размер, но мы делаем как ПЫС, то есть _size_800, _size_1600, _size, где size одно и то же число
 void XRay::CFontGen::ParseFont(int index, int max_value)
 {
 	g_count++;
@@ -56,7 +56,7 @@ void XRay::CFontGen::ParseFont(int index, int max_value)
 	float max_dm = ((1 + (ConverterInfo.face->size->metrics.height >> 6)) * ceilf(sqrtf(TOTAL_ANSCII)));
 	int current_state = (1 + (ConverterInfo.face->size->metrics.height >> 6));
 
-	// @ Ïðîñ÷èòûâàåì ðàçìåð òåêñòóðû óìíîæàÿ íà 2
+	// @ Просчитываем размер текстуры умножая на 2
 	while (ConverterInfo.TexWid < max_dm)
 		ConverterInfo.TexWid <<= 1;
 
@@ -86,14 +86,14 @@ void XRay::CFontGen::ParseFont(int index, int max_value)
 		err = FT_Load_Char(ConverterInfo.face, i, FT_LOAD_RENDER | FT_LOAD_FORCE_AUTOHINT | FT_LOAD_TARGET_LIGHT);
 
 		FT_Bitmap& refBMP = ConverterInfo.face->glyph->bitmap;
-		// Âåëèêèé è óæàñíûé õàê ñ ïðîáåëàìè
+		// Великий и ужасный хак с пробелами
 		if (i == 32 && !refBMP.rows && !refBMP.width)
 		{
 			// 0 is true space
 			err = FT_Load_Char(ConverterInfo.face, 0, FT_LOAD_RENDER | FT_LOAD_FORCE_AUTOHINT | FT_LOAD_TARGET_LIGHT);
 			FT_Bitmap* pBMP = &ConverterInfo.face->glyph->bitmap;
 
-			// Åñëè îïÿòü ïóñòî, òî íàïèøåì ñâîè äàííûå...
+			// Если опять пусто, то напишем свои данные...
 			if (!pBMP->rows && !pBMP->width)
 			{
 				pBMP->width = 9;
@@ -125,7 +125,7 @@ void XRay::CFontGen::ParseFont(int index, int max_value)
 				pen_y += current_size;
 			}
 
-			// @ äâîåòî÷èå è òî÷êà ñ çàïÿòîé
+			// @ двоеточие и точка с запятой
 			if (i == 58 || i == 59)
 			{
 				current_size = int(info_copy.y_off - ConverterInfo.face->glyph->bitmap_top);
@@ -184,7 +184,7 @@ void XRay::CFontGen::ParseFont(int index, int max_value)
 	{
 		
 		FT_Error err;
-		// @ '¨' è '¸'
+		// @ 'Ё' и 'ё'
 		if (i != 1104)
 			err = FT_Load_Char(ConverterInfo.face, i, FT_LOAD_RENDER | FT_LOAD_FORCE_AUTOHINT | FT_LOAD_TARGET_LIGHT);
 		else
@@ -289,7 +289,7 @@ void XRay::CFontGen::ParseFont(int index, int max_value)
 	free(ConverterInfo.Pixels);
 	ZeroMemory(&ConverterInfo.Pixels, sizeof(ConverterInfo.Pixels)); 
 
-	// @ Ñîçäàíèå ini ôàéëà
+	// @ Создание ini файла
 	std::ofstream INIFile;
 	xstring output_copy = PathSystem.FileOutName;
 	INIFile.open((PathSystem.FileOutName.erase(PathSystem.FileOutName.rfind(".")) + ".ini").c_str());
@@ -323,8 +323,8 @@ void XRay::CFontGen::ParseFont(int index, int max_value)
 			x = " = ";
 		}
 
-		// @ Èä¸ò Ëàòèíèöà è ñëóæåáíûå ñèìâîëû (ñíà÷à ñëóæåáíûå ñèìâîëû, çàòåì ëàòûíü)
-		size_t local_it = 0; // @ Íóæíî ó÷èòûâàòü ÷òî ïåðåññûëêà ðàçíàÿ, îñîáåííî ñ äàííûì ìàññèâîì
+		// @ Идёт Латиница и служебные символы (снача служебные символы, затем латынь)
+		size_t local_it = 0; // @ Нужно учитывать что перессылка разная, особенно с данным массивом
 		for (u32 i = 32; i < 128; ++i)
 		{
 			for (u32 CordIter = 0; CordIter < 2; CordIter++)
@@ -353,10 +353,10 @@ void XRay::CFontGen::ParseFont(int index, int max_value)
 			x = " = ";
 		};
 
-		// @ ÏÛÑîâñêèå ìóñîðíûå ñèìâîëû, â òåêñòóðàõ îíè íå ñîäåðæàòüñÿ (íå òî ÷òî â îðèãèíàëå!)
+		// @ ПЫСовские мусорные символы, в текстурах они не содержаться (не то что в оригинале!)
 		for (size_t i = 128; i < 192; ++i)
 		{
-			// @ Çàïèñûâàåì ¨
+			// @ Записываем Ё
 			if (i == 168)
 			{
 				for (u32 CordIter = 0; CordIter < 2; CordIter++)
@@ -375,7 +375,7 @@ void XRay::CFontGen::ParseFont(int index, int max_value)
 				continue;
 			}
 
-			// @ Çàïèñûâàåì ¸
+			// @ Записываем Е
 			if (i == 184)
 			{
 				for (u32 CordIter = 0; CordIter < 2; CordIter++)
@@ -398,7 +398,7 @@ void XRay::CFontGen::ParseFont(int index, int max_value)
 			WriteToINI(i);
 		}
 
-		// @ Èä¸ò êèðèëëèöà
+		// @ Идёт кириллица
 		for (size_t i = 192; i < 256; ++i)
 		{
 			for (u32 CordIter = 0; CordIter < 2; CordIter++)
@@ -416,7 +416,7 @@ void XRay::CFontGen::ParseFont(int index, int max_value)
 
 	if (ConverterInfo.bHaveTexconv)
 	{
-		// @ Çàïèñàëè óæå .tga -> êîíâåðòèðóåì â ñîîòâåòñòâóþùèé ðàçìåð ïîä dds
+		// @ Записали уже .tga -> конвертируем в соответствующий размер под dds
 		system(("texconv.exe -f DXT5 " + output_copy + " -o " + PathSystem.PathOutName +" -y").c_str());
 		system(("texconv.exe " + output_copy + " -ft png -f R8G8B8A8_UNORM" + " -o " + PathSystem.PathOutName).c_str());
 	}
@@ -434,14 +434,13 @@ void XRay::CFontGen::CreateGSCFonts()
 	if (PathSystem.FontSize)
 	{
 		for(u32 Iter = 0; Iter < 3; Iter++)
-			// Êàæäûé ïîñëåäóþùèé ðàçìåð óìåíüøàåòñÿ ñ øàãîì *2 (òî åñòü -2, -4)
+			// Каждый последующий размер уменьшается с шагом *2 (то есть -2, -4)
 			ParseFont(PathSystem.FontSize - (Iter * 2), PathSystem.FontSize); 
 	}
 }
 
 void XRay::CFontGen::InitFont()
 {
-#ifdef DEBUG
 	SetConsoleTextAttribute(hConsole, DEFAULT_COLOR);
 	ConverterInfo.Pixels = nullptr;
 
@@ -459,7 +458,6 @@ void XRay::CFontGen::InitFont()
 		std::cout << "Failed!" << std::endl;
 		SetConsoleTextAttribute(hConsole, DEFAULT_COLOR);
 	}
-#endif
 }
 
 void XRay::CFontGen::CreateFolder()

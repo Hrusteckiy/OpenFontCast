@@ -9,13 +9,11 @@ using string128 = char[128];
 using xstring = xr_string;
 #endif
 
-#ifdef DEBUG
-// @ Öâåòà äëÿ êîíñîëè
+// @ Цвета для консоли
 inline int DEFAULT_COLOR = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
 inline int ERROR_COLOR = 28;
 inline int OK_COLOR = 26;
 inline int COLOR_DEFAULT = 27;
-#endif
 
 #ifdef USE_CORE
 #pragma unmanaged
