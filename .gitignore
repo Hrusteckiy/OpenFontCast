@@ -14,7 +14,6 @@
 # Compiled Dynamic libraries
 *.so
 *.dylib
-*.dll
 
 # Fortran module files
 *.mod
@@ -24,9 +23,22 @@
 *.lai
 *.la
 *.a
-*.lib
 
 # Executables
 *.exe
 *.out
 *.app
+*.vsidx
+*.db-wal
+.vs/Oxy.FreeTypeConsole/v17/.suo
+*.lock
+*.opendb
+*.db-shm
+*.db
+*.ipch
+
+x64/
+*.txt
+*.cache
+*.log
+*.pdb

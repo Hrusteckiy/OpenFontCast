@@ -12,8 +12,7 @@
 #include <string>
 #include "Extended.h"
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
+#include <freetype/freetype.h>
 
 // @ Да за хардкоржено, отводим место для Английского и Русского, а также для системных символов (цифры, прочее)
 constexpr size_t TOTAL_ANSCII = 96 + 65 + 1;
